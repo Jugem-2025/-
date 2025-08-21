@@ -5,33 +5,56 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>保存されたストレスチェック結果</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
+    body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+    h1, h2, h3, h4 { margin: 1em 0 0.5em; }
     .entry { border-bottom: 1px solid #ddd; padding: 10px 0; }
-    .entry h3 { margin: 0 0 .5em; }
-    .entry ul { margin: .5em 0; padding-left: 1.2em; }
+    ul { margin: 0.3em 0 0.8em 1.2em; }
   </style>
 </head>
 <body>
   <h1>保存されたストレスチェック結果</h1>
   <div id="results"></div>
+
   <script>
-    const resultsEl = document.getElementById("results");
-    const entries = JSON.parse(localStorage.getItem("stressEntries") || "[]");
-    if (!entries.length) {
-      resultsEl.textContent = "まだ保存された記録はありません。";
-    } else {
-      entries.reverse().forEach(entry => {
-        const div = document.createElement("div");
-        div.className = "entry";
-        div.innerHTML = `
-          <h3>${entry.timestamp}</h3>
-          <strong>チェックした項目:</strong>
-          <ul>${entry.symptoms.map(s => `<li>${s}</li>`).join("")}</ul>
-          ${entry.notes? `<p><strong>備考:</strong> ${entry.notes}</p>` : ""}
-        `;
-        resultsEl.appendChild(div);
+  // index.html と同じデータを利用して対処法も表示
+  const data = {/* …index.htmlと同じ data オブジェクト… */};
+
+  const container = document.getElementById("results");
+  const entries = JSON.parse(localStorage.getItem("stressEntries")||"[]");
+  if (!entries.length) {
+    container.textContent = "まだ保存された記録はありません。";
+  } else {
+    entries.reverse().forEach(record => {
+      const div = document.createElement("div");
+      div.className = "entry";
+      div.innerHTML = `<h2>${record.timestamp}</h2>`;
+      // レベル→大枠ごとにグループ化
+      const byLevel = {};
+      record.symptoms.forEach(item => {
+        byLevel[item.level] = byLevel[item.level] || {};
+        byLevel[item.level][item.category] = byLevel[item.level][item.category]||[];
+        byLevel[item.level][item.category].push(item.text);
       });
-    }
+      for (const lv of Object.keys(byLevel)) {
+        div.innerHTML += `<h3>${lv}</h3>`;
+        for (const cat of ["身体症状","行動(増)","行動(減)","心理","仕事","私事"]) {
+          const list = byLevel[lv][cat];
+          if (!list || !list.length) continue;
+          div.innerHTML += `<h4>${cat}</h4><ul>${list.map(v=>`<li>${v}</li>`).join("")}</ul>`;
+        }
+        // 対処１／２
+        div.innerHTML += `<p><strong>${lv}の対処１：</strong>${data[lv].coping1}</p>`;
+        if (data[lv].coping2) {
+          div.innerHTML += `<p><strong>${lv}の対処２：</strong>${data[lv].coping2}</p>`;
+        }
+      }
+      // 備考
+      if (record.notes) {
+        div.innerHTML += `<p><strong>備考：</strong>${record.notes}</p>`;
+      }
+      container.appendChild(div);
+    });
+  }
   </script>
 </body>
 </html>
