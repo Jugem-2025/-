@@ -299,89 +299,97 @@
   </div>
 
   <script>
-    // レベルごとの対処法を配列の配列として定義（[対処法1のリスト, 対処法2のリスト]）
-    var copingSuggestions = {
+    // 対処法１・２をExcelから取り込んだ内容で定義
+    const copingSuggestions = {
       '軽度': [
-        // 対処法1
+        // 対処法１
         [
-          "寝る", "さんぽをする", "公園でボーっとする",
-          "カフェでおいしいコーヒーを飲む", "マインドフルネス",
-          "ストレッチ", "セルフマッサージ", "運動",
-          "登山", "おいしいものを食べる", "人と話す", "飲みに行く"
+          "寝る",
+          "さんぽをする",
+          "公園でボーっとする",
+          "カフェでおいしいコーヒーを飲む",
+          "マインドフルネス",
+          "ストレッチ",
+          "セルフマッサージ",
+          "運動",
+          "登山",
+          "おいしいものを食べる",
+          "人と話す",
+          "飲みに行く"
         ],
-        // 対処法2（ファイルから該当する項目があれば追加してください）
-        [
-          // 例: "十分な睡眠環境を整える", "バランスの良い食事を心がける"
-        ]
+        // 対処法２（空配列）
+        []
       ],
       '中度': [
-        // 対処法1
+        // 対処法１
         [
-          "寝る（とにかくまず寝る、寝すぎない）", "相談をする",
-          "マインドフルネス", "温泉", "海",
-          "カフェイン・アルコールを控える", "マッサージ",
-          "日光浴", "ゆっくり温泉や銭湯を楽しむ",
-          "自分の気持ちを優先する", "おいしいものをゆっくり食べる",
-          "料理をする", "スマホから手を放す", "美容室に行く",
-          "上司に1on1のお願いをする", "問題解決シートを書き、対応策について相談"
+          "寝る（とにかくまず寝る、寝すぎない）",
+          "相談をする",
+          "マインドフルネス",
+          "温泉",
+          "海",
+          "カフェイン・アルコールを控える",
+          "マッサージ",
+          "日光浴",
+          "ゆっくり温泉や銭湯を楽しむ",
+          "自分の気持ちを優先する",
+          "おいしいものをゆっくり食べる",
+          "料理をする",
+          "スマホから手を放す",
+          "美容室に行く",
+          "上司に1on1のお願いをする",
+          "問題解決シートを書き、上司と対応策について相談"
         ],
-        // 対処法2
-        [
-          // 例: "生活リズムを整える", "専門窓口に相談する"
-        ]
+        // 対処法２（空配列）
+        []
       ],
       '重度': [
-        // 対処法1
+        // 対処法１
         [
-          "即刻受診", "すぐに数日の休みを取る"
+          "即刻受診",
+          "すぐに数日の休みを取る"
         ],
-        // 対処法2
-        [
-          // 例: "医師の定期診察を受ける", "家族・友人に相談する"
-        ]
+        // 対処法２（空配列）
+        []
       ]
     };
 
     function updatePreview() {
-      var checked = document.querySelectorAll('input[type="checkbox"]:checked');
-      var selectedByLevel = {}; 
-      checked.forEach(function(chk) {
-        var lvl = chk.dataset.level;
-        selectedByLevel[lvl] = true;
-      });
-
-      var preview = document.getElementById('solutionPreview');
+      const preview = document.getElementById('solutionPreview');
       preview.innerHTML = '';
 
-      // 選択されたレベルごとに「対処法1」「対処法2」を両方表示
-      Object.keys(selectedByLevel).forEach(function(level) {
-        var lists = copingSuggestions[level] || [];
-        lists.forEach(function(arr, idx) {
-          if (arr.length === 0) return;  // 空配列はスキップ
-          // ヘッダ
-          var h4 = document.createElement('h4');
-          h4.textContent = level + ' の対処法' + (idx + 1);
-          var block = document.createElement('div');
+      // チェック済みの項目から選択レベルを抽出
+      const checked = document.querySelectorAll('input[type="checkbox"]:checked');
+      const levels = Array.from(checked).reduce((set, chk) => {
+        set.add(chk.dataset.level);
+        return set;
+      }, new Set());
+
+      // 各レベルごとに対処法1/2を表示
+      levels.forEach(level => {
+        const lists = copingSuggestions[level] || [];
+        lists.forEach((arr, idx) => {
+          if (!arr.length) return; // 空ならスキップ
+          const block = document.createElement('div');
           block.className = 'coping';
           block.dataset.level = level;
+          const h4 = document.createElement('h4');
+          h4.textContent = `${level} の対処法 ${idx + 1}`;
           block.appendChild(h4);
-
-          arr.forEach(function(text) {
-            var p = document.createElement('p');
+          arr.forEach(text => {
+            const p = document.createElement('p');
             p.textContent = '・' + text;
             block.appendChild(p);
           });
-
           preview.appendChild(block);
         });
       });
     }
 
-    // すべてのチェックボックスにイベント追加
-    document.querySelectorAll('input[type="checkbox"]').forEach(function(chk) {
+    // イベント登録＆初期プレビュー生成
+    document.querySelectorAll('input[type="checkbox"]').forEach(chk => {
       chk.addEventListener('change', updatePreview);
     });
-    // ページロード時にも空プレビュー生成
     updatePreview();
   </script>
 </body>
