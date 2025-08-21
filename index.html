@@ -5,151 +5,184 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>ストレスチェックシート</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    h1, h2, h3 { margin-top: 1em; }
-    section { margin-bottom: 1.5em; }
-    .level-group { border: 1px solid #ccc; padding: 10px; margin-bottom: 1em; }
-    .level-group h3 { margin: 0 0 .5em; }
-    #solutions { background: #f9f9f9; padding: 10px; border-radius: 4px; }
+    body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+    h1, h2, h3, h4 { margin: 1em 0 0.5em; }
+    .level-group { border: 1px solid #ccc; border-radius: 4px; padding: 10px; margin-bottom: 1em; }
+    .category { margin-left: 1em; margin-bottom: 0.5em; }
+    label { display: block; margin: 2px 0; }
+    #solutionPreview { background: #f9f9f9; padding: 10px; border-radius: 4px; min-height: 50px; }
     textarea { width: 100%; height: 80px; }
-    button { padding: .5em 1em; font-size: 1em; }
+    button { padding: 0.6em 1.2em; font-size: 1em; margin-top: 1em; }
   </style>
 </head>
 <body>
   <h1>ストレスチェックシート</h1>
 
   <form id="stressForm">
-    <section>
-      <h2>① 気になるサインにチェック</h2>
-      <div id="checkboxContainer"></div>
-    </section>
+    <h2>① チェック項目</h2>
+    <div id="checkboxContainer"></div>
 
-    <section>
-      <h2>② 対処法のプレビュー</h2>
-      <div id="solutions">まだチェックがありません</div>
-    </section>
+    <h2>② 対処法プレビュー</h2>
+    <div id="solutionPreview">まだチェックがありません</div>
 
-    <section>
-      <h2>③ メモ（備考欄）</h2>
-      <textarea id="notes" placeholder="ここに自由に書き込んでください…"></textarea>
-    </section>
+    <h2>③ 備考欄</h2>
+    <textarea id="notes" placeholder="ここにメモを入力…"></textarea>
 
-    <button type="button" id="saveBtn">保存して結果を確認</button>
+    <button type="button" id="saveBtn">保存して結果を見る</button>
   </form>
 
   <script>
-  // 1. Excel の内容を JS のデータ構造にまとめる
+  // データ定義
   const data = {
     "軽度": {
-      symptoms: [
-        "持続するかゆみ","間食をする・甘いものを買う","運動が減る","そわそわ",
-        "集中できない","連絡を返すのが面倒と感じる","残業をせず早く帰る",
-        "寝不足","食事が増える／減る","落ち着きがない時間帯が出てくる",
-        "過集中してしまう","自分を振り返る(7コラムなどのツールを使う)","疲労感",
-        "一人で食事をとる","残業が増える","リフレッシュの時間をとる",
-        "自分よりも人を優先する","経理処理が遅れる","別の業務を進める",
-        "タスクを整理する時間を作る","AIに相談"
+      "身体症状": [
+        "持続するかゆみ", "寝不足", "疲労感"
       ],
-      solution: "寝る、さんぽをする、公園でボーっとする、カフェでおいしいコーヒーを飲む、マインドフルネス、ストレッチ、セルフマッサージ、運動、登山、おいしいものを食べる、人と話す、飲みに行く"
+      "行動(増)": [
+        "間食をする・甘いものを買う", "食事が増える／減る", "過集中してしまう"
+      ],
+      "行動(減)": [
+        "運動が減る", "食事が増える／減る"
+      ],
+      "心理": [
+        "そわそわ", "集中できない", "連絡を返すのが面倒と感じる", "落ち着きがない時間帯が出てくる"
+      ],
+      "仕事": [
+        "残業をせず早く帰る", "残業が増える", "経理処理が遅れる", "別の業務を進める"
+      ],
+      "私事": [
+        "自分を振り返る(7コラムなどのツールを使う)", "一人で食事をとる",
+        "リフレッシュの時間をとる", "自分よりも人を優先する",
+        "タスクを整理する時間を作る", "AIに相談"
+      ],
+      "coping1": "寝る、さんぽをする、公園でボーっとする、カフェでおいしいコーヒーを飲む、マインドフルネス、ストレッチ、セルフマッサージ、運動、登山、おいしいものを食べる、人と話す、飲みに行く",
+      "coping2": ""
     },
     "中度": {
-      symptoms: [
-        "腹痛","連絡を躊躇する","映画や音楽を楽しめなくなる","イライラ",
-        "深夜帰宅が増える","連絡を返す頻度が落ちる","早退を使う",
-        "かゆみによる掻き傷","理席が増える","運動をしなくなる",
-        "全く落ち着いていない","出勤時刻が遅くなる","有給を1週間以内に取る",
-        "不眠","外食が増える","朝食を抜く","焦燥感","出来について不安になる",
-        "休みを減らさない","動悸","不自然に元気にふるまう","話がまとまらない",
-        "攻撃性","ミスが増える","業務の相談をする","肩こり","溜息が増える",
-        "決断ができなくなる","自信が低下する","ダラダラする","とにかく外在化をする",
-        "下痢","タバコが増える","声が小さくなる","心配",
-        "経理処理の督促が来る","主治医に相談","腰痛","朝起きられなくなる",
-        "相談が億劫になる","瞼の痙攣","ネットの時間が増える","ボーっとする",
-        "姿勢が悪くなる","プロジェクト終わりの風邪","忘れ物をする"
+      "身体症状": [
+        "腹痛", "かゆみによる掻き傷", "不眠", "動悸", "肩こり",
+        "瞼の痙攣", "腰痛", "朝起きられなくなる"
       ],
-      solution: "寝る。とにかくまず寝る(寝すぎない)。相談をする。マインドフルネス、温泉、海、カフェイン・アルコールを控える、マッサージ、日光浴、ゆっくり温泉や銭湯を楽しむ、自分の気持ちを優先する、おいしいものをゆっくり食べる、料理をする、スマホから手を放す、美容室に行く、上司に１ON1のお願い。問題解決シートを書き、上司と対応策について相談。"
+      "行動(増)": [
+        "理席が増える", "外食が増える", "ミスが増える",
+        "ダラダラする", "タバコが増える", "ネットの時間が増える"
+      ],
+      "行動(減)": [
+        "運動をしなくなる", "朝食を抜く", "声が小さくなる", "忘れ物をする"
+      ],
+      "心理": [
+        "連絡を躊躇する", "映画や音楽を楽しめなくなる", "イライラ",
+        "連絡を返す頻度が落ちる", "全く落ち着いていない", "焦燥感",
+        "出来について不安になる", "不自然に元気にふるまう", "話がまとまらない",
+        "攻撃性", "決断ができなくなる", "自信が低下する", "相談が億劾になる", "心配"
+      ],
+      "仕事": [
+        "深夜帰宅が増える", "早退を使う", "出勤時刻が遅くなる",
+        "有給を1週間以内に取る", "休みを減らさない", "業務の相談をする",
+        "経理処理の督促が来る"
+      ],
+      "私事": [
+        "とにかく外在化をする"
+      ],
+      "coping1": "寝る。とにかくまず寝る(寝すぎない)。相談をする。",
+      "coping2": "マインドフルネス、温泉、海、カフェイン・アルコールを控える、マッサージ、日光浴、ゆっくり温泉や銭湯を楽しむ、自分の気持ちを優先する、おいしいものをゆっくり食べる、料理をする、スマホから手を放す、美容室に行く、上司に１ON1のお願いする。問題解決シートを書き、上司と対応策について相談。"
     },
     "重度": {
-      symptoms: [
-        "複数回の突発的な下痢","連絡がほぼできない","会話が減る","感情の起伏がなくなる",
-        "残業申告を削る","即刻受診","重度の不眠(3時以降の就寝)","返事が単調になる",
-        "歩くのが遅くなる","強い焦燥感","タクシー通勤","すぐに数日の休みを取る",
-        "動悸","家にまっすぐ帰れなくなる","何も決断できない","あきらめ",
-        "大事な業務に遅刻をする","業務軽減のお願いをする","生活に支障のある腰痛",
-        "貧乏ゆすり","通勤で精一杯","混乱","締め切りを守れなくなる","重い倦怠感",
-        "背筋を伸ばして座れない","微熱","金使いが荒くなる","かぜ","大事なものを無くす",
-        "手遅れ","起き上がれない","連絡できない","食事が減る","罪悪感",
-        "通勤できなくなる","家族や友人への連絡もしなくなる","家から出れなくなる",
-        "希死念慮","自己嫌悪","自責の念"
+      "身体症状": [
+        "複数回の突発的な下痢", "重度の不眠(3時以降の就寝)", "動悸",
+        "微熱", "かぜ", "生活に支障のある腰痛", "起き上がれない"
       ],
-      solution: "即刻受診。すぐに数日の休みを取る。"
+      "行動(増)": [
+        "タクシー通勤", "貧乏ゆすり"
+      ],
+      "行動(減)": [
+        "連絡がほぼできない", "会話が減る", "返事が単調になる",
+        "歩くのが遅くなる", "連絡できない"
+      ],
+      "心理": [
+        "感情の起伏がなくなる", "強い焦燥感", "何も決断できない",
+        "あきらめ", "混乱", "罪悪感", "自己嫌悪", "自責の念"
+      ],
+      "仕事": [
+        "残業申告を削る", "大事な業務に遅刻をする", "業務軽減のお願いをする",
+        "締め切りを守れなくなる", "通勤で精一杯"
+      ],
+      "私事": [
+        "家にまっすぐ帰れなくなる", "家から出れなくなる",
+        "通勤できなくなる", "家族や友人への連絡もしなくなる"
+      ],
+      "coping1": "即刻受診",
+      "coping2": "すぐに数日の休みを取る"
     }
   };
 
-  // 2. チェックボックスを動的に描画
+  // ① チェックボックスの動的生成
   const container = document.getElementById("checkboxContainer");
-  for (const level in data) {
-    const div = document.createElement("div");
-    div.className = "level-group";
+  for (const level of Object.keys(data)) {
+    const lvDiv = document.createElement("div");
+    lvDiv.className = "level-group";
     const h3 = document.createElement("h3");
-    h3.textContent = `${level}のサイン`;
-    div.appendChild(h3);
+    h3.textContent = level;
+    lvDiv.appendChild(h3);
 
-    data[level].symptoms.forEach(symptom => {
-      const label = document.createElement("label");
-      label.style.display = "block";
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.name = "symptom";
-      cb.value = symptom;
-      cb.dataset.level = level;
-      label.append(cb, " " + symptom);
-      div.appendChild(label);
-    });
+    for (const category of ["身体症状","行動(増)","行動(減)","心理","仕事","私事"]) {
+      const catDiv = document.createElement("div");
+      catDiv.className = "category";
+      const h4 = document.createElement("h4");
+      h4.textContent = category;
+      catDiv.appendChild(h4);
 
-    container.appendChild(div);
+      data[level][category].forEach(text => {
+        const label = document.createElement("label");
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.value = text;
+        cb.dataset.level = level;
+        cb.dataset.category = category;
+        cb.name = "symptom";
+        label.append(cb, " " + text);
+        catDiv.appendChild(label);
+      });
+
+      lvDiv.appendChild(catDiv);
+    }
+    container.appendChild(lvDiv);
   }
 
-  // 3. チェック変化で対処法をプレビュー表示
-  const solutionsEl = document.getElementById("solutions");
-  document.getElementById("checkboxContainer")
-    .addEventListener("change", () => {
-      const checked = Array.from(
-        document.querySelectorAll('input[name="symptom"]:checked')
-      );
-      if (!checked.length) {
-        solutionsEl.textContent = "まだチェックがありません";
-        return;
+  // ② プレビュー更新
+  const preview = document.getElementById("solutionPreview");
+  container.addEventListener("change", () => {
+    const checked = Array.from(document.querySelectorAll('input[name="symptom"]:checked'));
+    if (!checked.length) {
+      preview.textContent = "まだチェックがありません";
+      return;
+    }
+    const levels = new Set(checked.map(cb => cb.dataset.level));
+    let html = "";
+    levels.forEach(lv => {
+      html += `<strong>${lv}の対処１：</strong><p>${data[lv].coping1}</p>`;
+      if (data[lv].coping2) {
+        html += `<strong>${lv}の対処２：</strong><p>${data[lv].coping2}</p>`;
       }
-      // レベルごとにまとめて表示
-      const byLevel = { "軽度": [], "中度": [], "重度": [] };
-      checked.forEach(cb => byLevel[cb.dataset.level].push(cb.value));
-
-      let html = "";
-      for (const level of ["軽度","中度","重度"]) {
-        if (!byLevel[level].length) continue;
-        html += `<strong>${level}の対処法：</strong>`
-             + `<p>${data[level].solution}</p>`;
-      }
-      solutionsEl.innerHTML = html;
     });
+    preview.innerHTML = html;
+  });
 
-  // 4. 保存ボタン → localStorage に書き込み → 結果ページへ遷移
+  // ③ 保存ボタン
   document.getElementById("saveBtn").addEventListener("click", () => {
-    const checkedValues = Array.from(
-      document.querySelectorAll('input[name="symptom"]:checked')
-    ).map(cb => cb.value);
-    const notes = document.getElementById("notes").value.trim();
-    const entry = {
+    const entries = JSON.parse(localStorage.getItem("stressEntries")||"[]");
+    const checked = Array.from(document.querySelectorAll('input[name="symptom"]:checked'));
+    const record = {
       timestamp: new Date().toLocaleString(),
-      symptoms: checkedValues,
-      notes
+      symptoms: checked.map(cb => ({
+        level: cb.dataset.level,
+        category: cb.dataset.category,
+        text: cb.value
+      })),
+      notes: document.getElementById("notes").value.trim()
     };
-    // 既存エントリを読み込んで追加
-    const existing = JSON.parse(localStorage.getItem("stressEntries") || "[]");
-    existing.push(entry);
-    localStorage.setItem("stressEntries", JSON.stringify(existing));
-    // 別ページへ飛ぶ
+    entries.push(record);
+    localStorage.setItem("stressEntries", JSON.stringify(entries));
     window.location.href = "results.html";
   });
   </script>
