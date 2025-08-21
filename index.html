@@ -32,28 +32,38 @@
   </form>
 
   <script>
-  // データ定義
+  // データ定義（エクセル表の大枠・項目を忠実に反映）
   const data = {
     "軽度": {
       "身体症状": [
         "持続するかゆみ", "寝不足", "疲労感"
       ],
       "行動(増)": [
-        "間食をする・甘いものを買う", "食事が増える／減る", "過集中してしまう"
+        "間食をする・甘いものを買う",
+        "食事が増える／減る",
+        "過集中してしまう",
+        "自分よりも人を優先する"
       ],
       "行動(減)": [
         "運動が減る", "食事が増える／減る"
       ],
       "心理": [
-        "そわそわ", "集中できない", "連絡を返すのが面倒と感じる", "落ち着きがない時間帯が出てくる"
+        "そわそわ", "集中できない",
+        "連絡を返すのが面倒と感じる",
+        "落ち着きがない時間帯が出てくる"
       ],
       "仕事": [
-        "残業をせず早く帰る", "残業が増える", "経理処理が遅れる", "別の業務を進める"
+        "残業をせず早く帰る",
+        "残業が増える",
+        "経理処理が遅れる",
+        "別の業務を進める"
       ],
       "私事": [
-        "自分を振り返る(7コラムなどのツールを使う)", "一人で食事をとる",
-        "リフレッシュの時間をとる", "自分よりも人を優先する",
-        "タスクを整理する時間を作る", "AIに相談"
+        "自分を振り返る(7コラムなどのツールを使う)",
+        "一人で食事をとる",
+        "リフレッシュの時間をとる",
+        "タスクを整理する時間を作る",
+        "AIに相談"
       ],
       "coping1": "寝る、さんぽをする、公園でボーっとする、カフェでおいしいコーヒーを飲む、マインドフルネス、ストレッチ、セルフマッサージ、運動、登山、おいしいものを食べる、人と話す、飲みに行く",
       "coping2": ""
@@ -116,40 +126,33 @@
     }
   };
 
-  // ① チェックボックスの動的生成
+  // チェックボックスの生成
   const container = document.getElementById("checkboxContainer");
-  for (const level of Object.keys(data)) {
+  for (const lvl of Object.keys(data)) {
     const lvDiv = document.createElement("div");
     lvDiv.className = "level-group";
-    const h3 = document.createElement("h3");
-    h3.textContent = level;
-    lvDiv.appendChild(h3);
-
-    for (const category of ["身体症状","行動(増)","行動(減)","心理","仕事","私事"]) {
+    lvDiv.innerHTML = `<h3>${lvl}</h3>`;
+    for (const cat of ["身体症状","行動(増)","行動(減)","心理","仕事","私事"]) {
       const catDiv = document.createElement("div");
       catDiv.className = "category";
-      const h4 = document.createElement("h4");
-      h4.textContent = category;
-      catDiv.appendChild(h4);
-
-      data[level][category].forEach(text => {
+      catDiv.innerHTML = `<h4>${cat}</h4>`;
+      data[lvl][cat].forEach(text => {
         const label = document.createElement("label");
         const cb = document.createElement("input");
         cb.type = "checkbox";
         cb.value = text;
-        cb.dataset.level = level;
-        cb.dataset.category = category;
+        cb.dataset.level = lvl;
+        cb.dataset.category = cat;
         cb.name = "symptom";
         label.append(cb, " " + text);
         catDiv.appendChild(label);
       });
-
       lvDiv.appendChild(catDiv);
     }
     container.appendChild(lvDiv);
   }
 
-  // ② プレビュー更新
+  // プレビュー更新
   const preview = document.getElementById("solutionPreview");
   container.addEventListener("change", () => {
     const checked = Array.from(document.querySelectorAll('input[name="symptom"]:checked'));
@@ -157,18 +160,17 @@
       preview.textContent = "まだチェックがありません";
       return;
     }
-    const levels = new Set(checked.map(cb => cb.dataset.level));
-    let html = "";
-    levels.forEach(lv => {
-      html += `<strong>${lv}の対処１：</strong><p>${data[lv].coping1}</p>`;
+    const levels = [...new Set(checked.map(cb => cb.dataset.level))];
+    preview.innerHTML = levels.map(lv => {
+      let html = `<strong>${lv}の対処１：</strong><p>${data[lv].coping1}</p>`;
       if (data[lv].coping2) {
         html += `<strong>${lv}の対処２：</strong><p>${data[lv].coping2}</p>`;
       }
-    });
-    preview.innerHTML = html;
+      return html;
+    }).join("");
   });
 
-  // ③ 保存ボタン
+  // 保存→結果ページへ
   document.getElementById("saveBtn").addEventListener("click", () => {
     const entries = JSON.parse(localStorage.getItem("stressEntries")||"[]");
     const checked = Array.from(document.querySelectorAll('input[name="symptom"]:checked'));
@@ -183,7 +185,7 @@
     };
     entries.push(record);
     localStorage.setItem("stressEntries", JSON.stringify(entries));
-    window.location.href = "results.html";
+    location.href = "results.html";
   });
   </script>
 </body>
