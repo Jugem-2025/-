@@ -1,1 +1,3 @@
-https://jugem-2025.github.io/-/
+https://jugem-2025.github.io/stress-check-sheet
+
+ver.20250821
