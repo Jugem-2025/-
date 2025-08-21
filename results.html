@@ -16,11 +16,43 @@
   <div id="results"></div>
 
   <script>
-  // index.html と同じデータを利用して対処法も表示
-  const data = {/* …index.htmlと同じ data オブジェクト… */};
+  // index.html と同じ data オブジェクトをここにも貼り
+  const data = {
+    "軽度": {
+      "身体症状": ["持続するかゆみ","寝不足","疲労感"],
+      "行動(増)": ["間食をする・甘いものを買う","食事が増える／減る","過集中してしまう","自分よりも人を優先する"],
+      "行動(減)": ["運動が減る","食事が増える／減る"],
+      "心理": ["そわそわ","集中できない","連絡を返すのが面倒と感じる","落ち着きがない時間帯が出てくる"],
+      "仕事": ["残業をせず早く帰る","残業が増える","経理処理が遅れる","別の業務を進める"],
+      "私事": ["自分を振り返る(7コラムなどのツールを使う)","一人で食事をとる","リフレッシュの時間をとる","タスクを整理する時間を作る","AIに相談"],
+      "coping1": "寝る、さんぽをする、公園でボーっとする、カフェでおいしいコーヒーを飲む、マインドフルネス、ストレッチ、セルフマッサージ、運動、登山、おいしいものを食べる、人と話す、飲みに行く",
+      "coping2": ""
+    },
+    "中度": {
+      "身体症状": ["腹痛","かゆみによる掻き傷","不眠","動悸","肩こり","瞼の痙攣","腰痛","朝起きられなくなる"],
+      "行動(増)": ["理席が増える","外食が増える","ミスが増える","ダラダラする","タバコが増える","ネットの時間が増える"],
+      "行動(減)": ["運動をしなくなる","朝食を抜く","声が小さくなる","忘れ物をする"],
+      "心理": ["連絡を躊躇する","映画や音楽を楽しめなくなる","イライラ","連絡を返す頻度が落ちる","全く落ち着いていない","焦燥感","出来について不安になる","不自然に元気にふるまう","話がまとまらない","攻撃性","決断ができなくなる","自信が低下する","相談が億劾になる","心配"],
+      "仕事": ["深夜帰宅が増える","早退を使う","出勤時刻が遅くなる","有給を1週間以内に取る","休みを減らさない","業務の相談をする","経理処理の督促が来る"],
+      "私事": ["とにかく外在化をする"],
+      "coping1": "寝る。とにかくまず寝る(寝すぎない)。相談をする。",
+      "coping2": "マインドフルネス、温泉、海、カフェイン・アルコールを控える、マッサージ、日光浴、ゆっくり温泉や銭湯を楽しむ、自分の気持ちを優先する、おいしいものをゆっくり食べる、料理をする、スマホから手を放す、美容室に行く、上司に１ON1のお願いする。問題解決シートを書き、上司と対応策について相談。"
+    },
+    "重度": {
+      "身体症状": ["複数回の突発的な下痢","重度の不眠(3時以降の就寝)","動悸","微熱","かぜ","生活に支障のある腰痛","起き上がれない"],
+      "行動(増)": ["タクシー通勤","貧乏ゆすり"],
+      "行動(減)": ["連絡がほぼできない","会話が減る","返事が単調になる","歩くのが遅くなる","連絡できない"],
+      "心理": ["感情の起伏がなくなる","強い焦燥感","何も決断できない","あきらめ","混乱","罪悪感","自己嫌悪","自責の念"],
+      "仕事": ["残業申告を削る","大事な業務に遅刻をする","業務軽減のお願いをする","締め切りを守れなくなる","通勤で精一杯"],
+      "私事": ["家にまっすぐ帰れなくなる","家から出れなくなる","通勤できなくなる","家族や友人への連絡もしなくなる"],
+      "coping1": "即刻受診",
+      "coping2": "すぐに数日の休みを取る"
+    }
+  };
 
   const container = document.getElementById("results");
   const entries = JSON.parse(localStorage.getItem("stressEntries")||"[]");
+
   if (!entries.length) {
     container.textContent = "まだ保存された記録はありません。";
   } else {
@@ -28,30 +60,35 @@
       const div = document.createElement("div");
       div.className = "entry";
       div.innerHTML = `<h2>${record.timestamp}</h2>`;
-      // レベル→大枠ごとにグループ化
+
+      // レベル→大枠ごとにグループ
       const byLevel = {};
       record.symptoms.forEach(item => {
-        byLevel[item.level] = byLevel[item.level] || {};
+        byLevel[item.level] = byLevel[item.level]||{};
         byLevel[item.level][item.category] = byLevel[item.level][item.category]||[];
         byLevel[item.level][item.category].push(item.text);
       });
-      for (const lv of Object.keys(byLevel)) {
-        div.innerHTML += `<h3>${lv}</h3>`;
-        for (const cat of ["身体症状","行動(増)","行動(減)","心理","仕事","私事"]) {
-          const list = byLevel[lv][cat];
-          if (!list || !list.length) continue;
-          div.innerHTML += `<h4>${cat}</h4><ul>${list.map(v=>`<li>${v}</li>`).join("")}</ul>`;
-        }
+
+      for (const lvl of Object.keys(byLevel)) {
+        div.innerHTML += `<h3>${lvl}</h3>`;
+        ["身体症状","行動(増)","行動(減)","心理","仕事","私事"].forEach(cat => {
+          const list = byLevel[lvl][cat];
+          if (list && list.length) {
+            div.innerHTML += `<h4>${cat}</h4><ul>${list.map(v=>`<li>${v}</li>`).join("")}</ul>`;
+          }
+        });
         // 対処１／２
-        div.innerHTML += `<p><strong>${lv}の対処１：</strong>${data[lv].coping1}</p>`;
-        if (data[lv].coping2) {
-          div.innerHTML += `<p><strong>${lv}の対処２：</strong>${data[lv].coping2}</p>`;
+        div.innerHTML += `<p><strong>${lvl}の対処１：</strong>${data[lvl].coping1}</p>`;
+        if (data[lvl].coping2) {
+          div.innerHTML += `<p><strong>${lvl}の対処２：</strong>${data[lvl].coping2}</p>`;
         }
       }
+
       // 備考
       if (record.notes) {
         div.innerHTML += `<p><strong>備考：</strong>${record.notes}</p>`;
       }
+
       container.appendChild(div);
     });
   }
