@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ストレスチェックシート</title>
   <style>
-    /* 基本レイアウト */
     body {
       font-family: "Helvetica Neue", Arial, sans-serif;
       background: #f5f5f5;
@@ -23,12 +22,11 @@
     }
     h1 { text-align: center; color: #333; }
 
-    /* レベル별 컬러 */
-    .level-keido { border-left: 4px solid #4CAF50; }
-    .level-chudo { border-left: 4px solid #FFA500; }
-    .level-juudo { border-left: 4px solid #F44336; }
+    /* レベルごとのカラーライン */
+    .level-keido  { border-left: 4px solid #4CAF50; }
+    .level-chudo  { border-left: 4px solid #FFA500; }
+    .level-juudo  { border-left: 4px solid #F44336; }
 
-    /* レベルグループ */
     .level-group {
       margin-bottom: 1.5em;
       padding: 1em;
@@ -40,7 +38,7 @@
       font-size: 1.2em;
     }
 
-    /* カテゴリ折り畳み */
+    /* 折りたたみカテゴリ */
     details {
       margin: 0.5em 0 0.5em 1em;
       background: #fff;
@@ -51,10 +49,9 @@
     summary {
       padding: 0.6em 1em;
       cursor: pointer;
-      position: relative;
-      list-style: none;
       font-weight: bold;
       background: #e8e8e8;
+      position: relative;
     }
     summary::marker { display: none; }
     summary::before {
@@ -81,7 +78,7 @@
 
     /* プレビュー */
     #solutionPreview {
-      min-height: 80px;
+      min-height: 100px;
       background: #fff;
       border-radius: 6px;
       padding: 1em;
@@ -102,7 +99,6 @@
       font-size: 1em;
     }
 
-    /* ボタン・備考欄 */
     textarea {
       width: 100%;
       height: 80px;
@@ -131,153 +127,262 @@
     @media (min-width: 600px) {
       details { max-width: 48%; float: left; margin-right: 2%; }
       details:nth-child(2n) { margin-right: 0; }
-      #solutionPreview, textarea, button {
-        clear: both;
-      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>ストレスチェックシート</h1>
-    <form id="stressForm">
-      <!-- ① チェック項目 -->
-      <h2>① チェックしたサイン</h2>
-      <div id="checkboxContainer"></div>
+    <h1>ストレスサインチェック</h1>
 
-      <!-- ② プレビュー -->
-      <h2>② 対処法プレビュー</h2>
-      <div id="solutionPreview">まだチェックがありません</div>
+    <!-- プレビュー領域 -->
+    <div id="solutionPreview"></div>
 
-      <!-- ③ 備考 -->
-      <h2>③ 備考欄</h2>
-      <textarea id="notes" placeholder="メモを入力…"></textarea>
+    <!-- チェックボックス一覧 -->
+    <form action="results.html" method="get" id="stressForm">
 
-      <button type="button" id="saveBtn">保存して結果を見る</button>
+      <!-- 軽度 -->
+      <div class="level-group level-keido">
+        <h2>軽度</h2>
+        <details>
+          <summary>身体症状</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="持続するかゆみ" data-level="軽度"> 持続するかゆみ</label>
+            <label><input type="checkbox" name="sign" value="寝不足" data-level="軽度"> 寝不足</label>
+            <label><input type="checkbox" name="sign" value="疲労感" data-level="軽度"> 疲労感</label>
+          </div>
+        </details>
+        <details>
+          <summary>行動（増）</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="間食をする・甘いものを買う" data-level="軽度"> 間食をする・甘いものを買う</label>
+            <label><input type="checkbox" name="sign" value="一人で食事をとる" data-level="軽度"> 一人で食事をとる</label>
+            <label><input type="checkbox" name="sign" value="残業が増える" data-level="軽度"> 残業が増える</label>
+            <label><input type="checkbox" name="sign" value="ネットの時間が増える" data-level="軽度"> ネットの時間が増える</label>
+          </div>
+        </details>
+        <details>
+          <summary>行動（減）</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="運動が減る" data-level="軽度"> 運動が減る</label>
+            <label><input type="checkbox" name="sign" value="落ち着きがない時間帯が出てくる" data-level="軽度"> 落ち着きがない時間帯が出てくる</label>
+            <label><input type="checkbox" name="sign" value="姿勢が悪くなる" data-level="軽度"> 姿勢が悪くなる</label>
+          </div>
+        </details>
+        <details>
+          <summary>心理</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="そわそわ" data-level="軽度"> そわそわ</label>
+            <label><input type="checkbox" name="sign" value="集中できない" data-level="軽度"> 集中できない</label>
+            <label><input type="checkbox" name="sign" value="焦燥感" data-level="軽度"> 焦燥感</label>
+          </div>
+        </details>
+        <details>
+          <summary>仕事</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="連絡を返すのが面倒と感じる" data-level="軽度"> 連絡を返すのが面倒と感じる</label>
+            <label><input type="checkbox" name="sign" value="タスクを整理する時間を作る" data-level="軽度"> タスクを整理する時間を作る</label>
+            <label><input type="checkbox" name="sign" value="経理処理が遅れる" data-level="軽度"> 経理処理が遅れる</label>
+          </div>
+        </details>
+        <details>
+          <summary>私事</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="残業をせず早く帰る" data-level="軽度"> 残業をせず早く帰る</label>
+            <label><input type="checkbox" name="sign" value="リフレッシュの時間をとる" data-level="軽度"> リフレッシュの時間をとる</label>
+            <label><input type="checkbox" name="sign" value="AIに相談" data-level="軽度"> AIに相談</label>
+          </div>
+        </details>
+      </div>
+
+      <!-- 中度 -->
+      <div class="level-group level-chudo">
+        <h2>中度</h2>
+        <details>
+          <summary>身体症状</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="腹痛" data-level="中度"> 腹痛</label>
+            <label><input type="checkbox" name="sign" value="肩こり" data-level="中度"> 肩こり</label>
+            <label><input type="checkbox" name="sign" value="腰痛" data-level="中度"> 腰痛</label>
+          </div>
+        </details>
+        <details>
+          <summary>行動（増）</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="深夜帰宅が増える" data-level="中度"> 深夜帰宅が増える</label>
+            <label><input type="checkbox" name="sign" value="動悸" data-level="中度"> 動悸</label>
+            <label><input type="checkbox" name="sign" value="瞼の痙攣" data-level="中度"> 瞼の痙攣</label>
+          </div>
+        </details>
+        <details>
+          <summary>行動（減）</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="連絡を躊躇する" data-level="中度"> 連絡を躊躇する</label>
+            <label><input type="checkbox" name="sign" value="連絡を返す頻度が落ちる" data-level="中度"> 連絡を返す頻度が落ちる</label>
+            <label><input type="checkbox" name="sign" value="相談が億劫になる" data-level="中度"> 相談が億劫になる</label>
+          </div>
+        </details>
+        <details>
+          <summary>心理</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="イライラ" data-level="中度"> イライラ</label>
+            <label><input type="checkbox" name="sign" value="不安になる" data-level="中度"> 不安になる</label>
+            <label><input type="checkbox" name="sign" value="自信が低下する" data-level="中度"> 自信が低下する</label>
+          </div>
+        </details>
+        <details>
+          <summary>仕事</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="上司に１ON1のお願いする" data-level="中度"> 上司に１ON1のお願いする</label>
+            <label><input type="checkbox" name="sign" value="問題解決シートを書く" data-level="中度"> 問題解決シートを書く</label>
+          </div>
+        </details>
+        <details>
+          <summary>私事</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="温泉や銭湯を楽しむ" data-level="中度"> 温泉や銭湯を楽しむ</label>
+            <label><input type="checkbox" name="sign" value="日光浴をする" data-level="中度"> 日光浴をする</label>
+          </div>
+        </details>
+      </div>
+
+      <!-- 重度 -->
+      <div class="level-group level-juudo">
+        <h2>重度</h2>
+        <details>
+          <summary>身体症状</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="重度の不眠(3時以降の就寝)" data-level="重度"> 重度の不眠(3時以降の就寝)</label>
+            <label><input type="checkbox" name="sign" value="複数回の突発的な下痢" data-level="重度"> 複数回の突発的な下痢</label>
+          </div>
+        </details>
+        <details>
+          <summary>行動（増）</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="タクシー通勤" data-level="重度"> タクシー通勤</label>
+            <label><input type="checkbox" name="sign" value="通勤で精一杯" data-level="重度"> 通勤で精一杯</label>
+          </div>
+        </details>
+        <details>
+          <summary>行動（減）</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="連絡がほぼできない" data-level="重度"> 連絡がほぼできない</label>
+            <label><input type="checkbox" name="sign" value="会話が減る" data-level="重度"> 会話が減る</label>
+          </div>
+        </details>
+        <details>
+          <summary>心理</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="あきらめ" data-level="重度"> あきらめ</label>
+            <label><input type="checkbox" name="sign" value="希死念慮" data-level="重度"> 希死念慮</label>
+          </div>
+        </details>
+        <details>
+          <summary>仕事</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="業務軽減のお願いをする" data-level="重度"> 業務軽減のお願いをする</label>
+            <label><input type="checkbox" name="sign" value="大事な業務に遅刻をする" data-level="重度"> 大事な業務に遅刻をする</label>
+          </div>
+        </details>
+        <details>
+          <summary>私事</summary>
+          <div class="checkbox-list">
+            <label><input type="checkbox" name="sign" value="家から出れなくなる" data-level="重度"> 家から出れなくなる</label>
+            <label><input type="checkbox" name="sign" value="起き上がれない" data-level="重度"> 起き上がれない</label>
+          </div>
+        </details>
+      </div>
+
+      <!-- 自由記述 -->
+      <textarea name="memo" placeholder="備考などあればご記入ください…"></textarea>
+      <button type="submit">保存する</button>
     </form>
   </div>
 
   <script>
-  // Excel を忠実に反映したデータ定義
-  const data = {
-    "軽度": {
-      "身体症状": ["持続するかゆみ","寝不足","疲労感"],
-      "行動(増)": ["間食をする・甘いものを買う","食事が増える／減る","過集中してしまう","自分よりも人を優先する"],
-      "行動(減)": ["運動が減る","食事が増える／減る"],
-      "心理": ["そわそわ","集中できない","連絡を返すのが面倒と感じる","落ち着きがない時間帯が出てくる"],
-      "仕事": ["残業をせず早く帰る","残業が増える","経理処理が遅れる","別の業務を進める"],
-      "私事": ["自分を振り返る(7コラムなどのツールを使う)","一人で食事をとる","リフレッシュの時間をとる","タスクを整理する時間を作る","AIに相談"],
-      "coping1": "寝る、さんぽをする、公園でボーっとする、カフェでおいしいコーヒーを飲む、マインドフルネス、ストレッチ、セルフマッサージ、運動、登山、おいしいものを食べる、人と話す、飲みに行く",
-      "coping2": ""
-    },
-    "中度": {
-      "身体症状": ["腹痛","かゆみによる掻き傷","不眠","動悸","肩こり","瞼の痙攣","腰痛","朝起きられなくなる"],
-      "行動(増)": ["理席が増える","外食が増える","ミスが増える","ダラダラする","タバコが増える","ネットの時間が増える"],
-      "行動(減)": ["運動をしなくなる","朝食を抜く","声が小さくなる","忘れ物をする"],
-      "心理": ["連絡を躊躇する","映画や音楽を楽しめなくなる","イライラ","連絡を返す頻度が落ちる","全く落ち着いていない","焦燥感","出来について不安になる","不自然に元気にふるまう","話がまとまらない","攻撃性","決断ができなくなる","自信が低下する","相談が億劾になる","心配"],
-      "仕事": ["深夜帰宅が増える","早退を使う","出勤時刻が遅くなる","有給を1週間以内に取る","休みを減らさない","業務の相談をする","経理処理の督促が来る"],
-      "私事": ["とにかく外在化をする"],
-      "coping1": "寝る。とにかくまず寝る(寝すぎない)。相談をする。",
-      "coping2": "マインドフルネス、温泉、海、カフェイン・アルコールを控える、マッサージ、日光浴、ゆっくり温泉や銭湯を楽しむ、自分の気持ちを優先する、おいしいものをゆっくり食べる、料理をする、スマホから手を放す、美容室に行く、上司に１ON1のお願いする。問題解決シートを書き、上司と対応策について相談。"
-    },
-    "重度": {
-      "身体症状": ["複数回の突発的な下痢","重度の不眠(3時以降の就寝)","動悸","微熱","かぜ","生活に支障のある腰痛","起き上がれない"],
-      "行動(増)": ["タクシー通勤","貧乏ゆすり"],
-      "行動(減)": ["連絡がほぼできない","会話が減る","返事が単調になる","歩くのが遅くなる","連絡できない"],
-      "心理": ["感情の起伏がなくなる","強い焦燥感","何も決断できない","あきらめ","混乱","罪悪感","自己嫌悪","自責の念"],
-      "仕事": ["残業申告を削る","大事な業務に遅刻をする","業務軽減のお願いをする","締め切りを守れなくなる","通勤で精一杯"],
-      "私事": ["家にまっすぐ帰れなくなる","家から出れなくなる","通勤できなくなる","家族や友人への連絡もしなくなる"],
-      "coping1": "即刻受診",
-      "coping2": "すぐに数日の休みを取る"
-    }
-  };
-
-  // チェックボックス生成
-  const container = document.getElementById("checkboxContainer");
-  for (const lvl of Object.keys(data)) {
-    const fg = document.createElement("div");
-    fg.classList.add("level-group",
-      lvl === "軽度" ? "level-keido" :
-      lvl === "中度" ? "level-chudo" :
-      "level-juudo");
-    fg.innerHTML = `<h2>${lvl}</h2>`;
-    for (const cat of ["身体症状","行動(増)","行動(減)","心理","仕事","私事"]) {
-      const det = document.createElement("details");
-      det.className = "category";
-      const sum = document.createElement("summary");
-      sum.textContent = cat;
-      det.appendChild(sum);
-      const list = document.createElement("div");
-      list.className = "checkbox-list";
-      data[lvl][cat].forEach(text => {
-        const label = document.createElement("label");
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.value = text;
-        cb.dataset.level = lvl;
-        cb.dataset.category = cat;
-        cb.name = "symptom";
-        label.append(cb, text);
-        list.appendChild(label);
-      });
-      det.appendChild(list);
-      fg.appendChild(det);
-    }
-    container.appendChild(fg);
-  }
-
-  // カテゴリごとの選択数をカウントして表示
-  document.querySelectorAll("details.category").forEach(det => {
-    const summary = det.querySelector("summary");
-    const items = det.querySelectorAll("input[type=checkbox]");
-    const base = summary.textContent;
-    function updateCount() {
-      const n = det.querySelectorAll("input:checked").length;
-      summary.textContent = `${base} (${n}/${items.length})`;
-    }
-    updateCount();
-    det.addEventListener("change", updateCount);
-  });
-
-  // プレビュー更新
-  const preview = document.getElementById("solutionPreview");
-  container.addEventListener("change", () => {
-    const checked = Array.from(document.querySelectorAll('input[name="symptom"]:checked'));
-    if (!checked.length) {
-      preview.textContent = "まだチェックがありません";
-      return;
-    }
-    const levels = [...new Set(checked.map(cb => cb.dataset.level))];
-    preview.innerHTML = levels.map(lv => {
-      let html = `<div class="coping" data-level="${lv}">
-        <h4>${lv}の対処１</h4>
-        <p>${data[lv].coping1}</p>`;
-      if (data[lv].coping2) {
-        html += `<h4>${lv}の対処２</h4>
-                 <p>${data[lv].coping2}</p>`;
-      }
-      html += `</div>`;
-      return html;
-    }).join("");
-  });
-
-  // 保存＆結果ページへ
-  document.getElementById("saveBtn").addEventListener("click", () => {
-    const entries = JSON.parse(localStorage.getItem("stressEntries")||"[]");
-    const checked = Array.from(document.querySelectorAll('input[name="symptom"]:checked'));
-    const record = {
-      timestamp: new Date().toLocaleString(),
-      symptoms: checked.map(cb => ({
-        level: cb.dataset.level,
-        category: cb.dataset.category,
-        text: cb.value
-      })),
-      notes: document.getElementById("notes").value.trim()
+    // レベルごとの対処法を配列の配列として定義（[対処法1のリスト, 対処法2のリスト]）
+    var copingSuggestions = {
+      '軽度': [
+        // 対処法1
+        [
+          "寝る", "さんぽをする", "公園でボーっとする",
+          "カフェでおいしいコーヒーを飲む", "マインドフルネス",
+          "ストレッチ", "セルフマッサージ", "運動",
+          "登山", "おいしいものを食べる", "人と話す", "飲みに行く"
+        ],
+        // 対処法2（ファイルから該当する項目があれば追加してください）
+        [
+          // 例: "十分な睡眠環境を整える", "バランスの良い食事を心がける"
+        ]
+      ],
+      '中度': [
+        // 対処法1
+        [
+          "寝る（とにかくまず寝る、寝すぎない）", "相談をする",
+          "マインドフルネス", "温泉", "海",
+          "カフェイン・アルコールを控える", "マッサージ",
+          "日光浴", "ゆっくり温泉や銭湯を楽しむ",
+          "自分の気持ちを優先する", "おいしいものをゆっくり食べる",
+          "料理をする", "スマホから手を放す", "美容室に行く",
+          "上司に1on1のお願いをする", "問題解決シートを書き、対応策について相談"
+        ],
+        // 対処法2
+        [
+          // 例: "生活リズムを整える", "専門窓口に相談する"
+        ]
+      ],
+      '重度': [
+        // 対処法1
+        [
+          "即刻受診", "すぐに数日の休みを取る"
+        ],
+        // 対処法2
+        [
+          // 例: "医師の定期診察を受ける", "家族・友人に相談する"
+        ]
+      ]
     };
-    entries.push(record);
-    localStorage.setItem("stressEntries", JSON.stringify(entries));
-    location.href = "results.html";
-  });
+
+    function updatePreview() {
+      var checked = document.querySelectorAll('input[type="checkbox"]:checked');
+      var selectedByLevel = {}; 
+      checked.forEach(function(chk) {
+        var lvl = chk.dataset.level;
+        selectedByLevel[lvl] = true;
+      });
+
+      var preview = document.getElementById('solutionPreview');
+      preview.innerHTML = '';
+
+      // 選択されたレベルごとに「対処法1」「対処法2」を両方表示
+      Object.keys(selectedByLevel).forEach(function(level) {
+        var lists = copingSuggestions[level] || [];
+        lists.forEach(function(arr, idx) {
+          if (arr.length === 0) return;  // 空配列はスキップ
+          // ヘッダ
+          var h4 = document.createElement('h4');
+          h4.textContent = level + ' の対処法' + (idx + 1);
+          var block = document.createElement('div');
+          block.className = 'coping';
+          block.dataset.level = level;
+          block.appendChild(h4);
+
+          arr.forEach(function(text) {
+            var p = document.createElement('p');
+            p.textContent = '・' + text;
+            block.appendChild(p);
+          });
+
+          preview.appendChild(block);
+        });
+      });
+    }
+
+    // すべてのチェックボックスにイベント追加
+    document.querySelectorAll('input[type="checkbox"]').forEach(function(chk) {
+      chk.addEventListener('change', updatePreview);
+    });
+    // ページロード時にも空プレビュー生成
+    updatePreview();
   </script>
 </body>
 </html>
