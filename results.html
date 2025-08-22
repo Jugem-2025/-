@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>保存結果</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
-    .container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; }
-    h1 { text-align: center; color: #333; margin-bottom: 1em; }
-    ul { padding-left: 1.2em; }
-    li { margin-bottom: 0.5em; }
-    .notes { margin-top: 1em; padding: 0.8em; background: #eef; border-left: 4px solid #1976d2; }
+    body{font-family:Arial,sans-serif;background:#f9f9f9;padding:20px;}
+    .container{max-width:600px;margin:auto;background:#fff;padding:20px;border-radius:8px;}
+    h1{text-align:center;color:#333;margin-bottom:1em;}
+    ul{padding-left:1.2em;}
+    li{margin-bottom:0.5em;}
+    .notes{margin-top:1em;padding:0.8em;background:#eef;border-left:4px solid #1976d2;}
   </style>
 </head>
 <body>
@@ -18,24 +18,15 @@
     <h1>保存結果</h1>
     <p>チェックしたサイン：</p>
     <ul id="selectedList"></ul>
-    <div class="notes">
-      <strong>備考：</strong>
-      <p id="memoArea"></p>
-    </div>
+    <div class="notes"><strong>備考：</strong><p id="memoArea"></p></div>
   </div>
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const signs  = params.getAll('sign');
-    const memo   = params.get('memo') || '';
-
-    const ul = document.getElementById('selectedList');
-    signs.forEach(s => {
-      const li = document.createElement('li');
-      li.textContent = s;
-      ul.appendChild(li);
-    });
-
-    document.getElementById('memoArea').textContent = memo;
+    const params=new URLSearchParams(location.search);
+    const signs=params.getAll('sign');
+    const memo=params.get('memo')||'';
+    const ul=document.getElementById('selectedList');
+    signs.forEach(s=>{const li=document.createElement('li');li.textContent=s;ul.appendChild(li);});
+    document.getElementById('memoArea').textContent=memo;
   </script>
 </body>
 </html>
