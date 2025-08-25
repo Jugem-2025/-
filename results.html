@@ -30,9 +30,11 @@
   <div id="results"></div>
 </div>
 <script>
+/* Excelの列順で表示を固定 */
+const categories = ["身体症状","行動(増)","行動(減)","心理","仕事","私事"];
+
 const entries = JSON.parse(localStorage.getItem("stressEntries") || "[]");
 const container = document.getElementById("results");
-const categories = ["身体症状","行動(増)","行動(減)","心理","仕事","私事"];
 
 if(!entries.length){
   container.textContent = "まだ保存された記録はありません。";
@@ -41,33 +43,40 @@ if(!entries.length){
     const div = document.createElement("div");
     div.className = "entry";
     div.innerHTML = `<h2>${record.timestamp}</h2>`;
+
+    /* 段階 → カテゴリの順でグルーピング */
     const byLevel = {};
     (record.symptoms||[]).forEach(item => {
       byLevel[item.level] = byLevel[item.level] || {};
       byLevel[item.level][item.category] = byLevel[item.level][item.category] || [];
       byLevel[item.level][item.category].push(item.text);
     });
+
     Object.keys(byLevel).forEach(level => {
       const lvlDiv = document.createElement("div");
       lvlDiv.className = "level-entry";
       lvlDiv.dataset.level = level;
       lvlDiv.innerHTML = `<h3>${level}</h3>`;
+
       categories.forEach(cat => {
         const list = byLevel[level][cat];
-        if(list){
+        if(list && list.length){
           const sec = document.createElement("div");
           sec.innerHTML = `<h4>${cat}</h4><ul>${list.map(v => `<li>${v}</li>`).join("")}</ul>`;
           lvlDiv.appendChild(sec);
         }
       });
+
       div.appendChild(lvlDiv);
     });
+
     if(record.notes){
       const notes = document.createElement("div");
       notes.className = "notes";
       notes.textContent = "備考: " + record.notes;
       div.appendChild(notes);
     }
+
     container.appendChild(div);
   });
 }
