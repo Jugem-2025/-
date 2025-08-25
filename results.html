@@ -1,104 +1,196 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>保存されたストレスチェック結果</title>
-  <style>
-    body {
-      font-family: "Helvetica Neue", Arial, sans-serif;
-      background: #f5f5f5;
-      margin: 0; padding: 20px; line-height: 1.6;
-    }
-    .container {
-      max-width: 900px;
-      margin: auto;
-      background: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    h1 { text-align: center; color: #333; margin-bottom: 0.5em; }
-    button {
-      display: inline-block;
-      margin-bottom: 1em;
-      padding: 0.6em 1em;
-      background: #1976d2;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    button:hover { background: #155a9c; }
-    .entry {
-      margin-bottom: 1.5em;
-      padding: 1em;
-      background: #fafafa;
-      border-radius: 6px;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .entry h2 { margin: 0 0 0.5em; font-size: 1.1em; color: #666; }
-    .level-entry {
-      margin: 0.8em 0;
-      padding-left: 0.8em;
-      border-left: 4px solid transparent;
-    }
-    .level-entry[data-level="軽度"] { border-color: #4CAF50; }
-    .level-entry[data-level="中度"] { border-color: #FFA500; }
-    .level-entry[data-level="重度"] { border-color: #F44336; }
-    .level-entry h3 { margin: 0.4em 0 0.2em; font-size: 1em; color: #333; }
-    .level-entry h4 { margin: 0.2em 0 0.2em 0.6em; font-size: 0.95em; color: #555; }
-    .level-entry ul { margin: 0.2em 0 0.8em 1em; }
-    .level-entry p { margin: 0.4em 0 0.8em 1em; }
-    .notes {
-      padding: 0.8em;
-      background: #eef;
-      border-left: 4px solid #1976d2;
-      border-radius: 4px;
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ストレスチェックシート</title>
+<style>
+ body { font-family: "Helvetica Neue", Arial, sans-serif; background:#f5f5f5; margin:0; padding:20px; line-height:1.6; }
+ .container { max-width: 960px; margin:auto; background:#fff; border-radius:8px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+ h1 { text-align:center; color:#333; margin-bottom:0.5em; }
+ .view-results { display:inline-block; margin-bottom:1em; color:#1976d2; text-decoration:none; }
+ .view-results:hover { text-decoration:underline; }
+ .levels-container { display:flex; flex-wrap:wrap; gap:20px; margin-bottom:1.5em; }
+ .level-group { flex:1 1 calc(50% - 20px); min-width:300px; background:#fafafa; border-radius:6px; padding:1em; box-sizing:border-box; border-left:4px solid transparent; }
+ .level-keido { border-color:#4CAF50; }
+ .level-chudo { border-color:#FFA500; }
+ .level-juudo { border-color:#F44336; }
+ .level-teokure { border-color:#6A1B9A; }
+ .level-group h2 { margin-top:0; font-size:1.2em; }
+ details { margin:0.5em 0; background:#fff; border-radius:4px; box-shadow:inset 0 1px 3px rgba(0,0,0,0.05); }
+ summary { padding:0.6em 1em; cursor:pointer; font-weight:bold; background:#e8e8e8; position:relative; }
+ summary::marker { display:none; }
+ summary::before { content:"▶"; display:inline-block; margin-right:0.5em; transition:transform 0.2s; }
+ details[open] > summary::before { content:"▼"; }
+ .checkbox-list { padding:0.5em 1em 1em 1.5em; }
+ .checkbox-list label { display:block; margin:0.2em 0; cursor:pointer; }
+ .checkbox-list input { margin-right:0.5em; transform:scale(1.1); }
+ textarea { width:100%; height:100px; margin-top:1em; padding:0.6em; border:1px solid #ccc; border-radius:4px; resize:vertical; }
+ button { display:block; width:100%; margin-top:1em; padding:0.8em; font-size:1em; color:#fff; background:#1976d2; border:none; border-radius:4px; cursor:pointer; transition:background 0.2s; }
+ button:hover { background:#155a9c; }
+ #solutionPreview { margin-top:2em; padding:1em; background:#fff; border-radius:6px; box-shadow:inset 0 1px 3px rgba(0,0,0,0.05); min-height:120px; }
+ .coping { margin-bottom:1em; padding:0.8em; border-radius:4px; background:#fdfdfd; border-left:4px solid transparent; }
+ .coping[data-level="軽度"] { border-color:#4CAF50; }
+ .coping[data-level="中度"] { border-color:#FFA500; }
+ .coping[data-level="重度"] { border-color:#F44336; }
+ .coping[data-level="手遅れ"] { border-color:#6A1B9A; }
+ @media (max-width: 800px) { .level-group { flex:1 1 100%; } }
+ .muted { color:#666; font-size:.9em; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>保存されたストレスチェック結果</h1>
-    <button onclick="location.href='index.html'">新規チェックに戻る</button>
-    <div id="results"></div>
-  </div>
+<div class="container">
+  <h1>ストレスチェックシート</h1>
+  <a href="results.html" class="view-results">▶ 過去の記録を見る</a>
 
-  <script>
-    // 対処法表示は不要。 symptoms と notes のみ表示
-    const entries = JSON.parse(localStorage.getItem("stressEntries") || "[]");
-    const container = document.getElementById("results");
+  <form id="stressForm">
+    <div class="levels-container" id="checkboxContainer"></div>
 
-    if (!entries.length) {
-      container.textContent = "まだ保存された記録はありません。";
-    } else {
-      // 新しい順
-      entries.slice().reverse().forEach(record => {
-        const div = document.createElement("div");
-        div.className = "entry";
-        div.innerHTML = `<h2>${record.timestamp}</h2>`;
+    <h2>備考</h2>
+    <textarea id="notes" placeholder="ここにメモを入力…"></textarea>
+    <button type="button" id="saveBtn">保存して結果を見る</button>
+  </form>
 
-        // レベル→カテゴリ→項目 をグループ化
-        const byLevel = {};
-        record.symptoms.forEach(item => {
-          byLevel[item.level] = byLevel[item.level] || {};
-          byLevel[item.level][item.category] = byLevel[item.level][item.category] || [];
-          byLevel[item.level][item.category].push(item.text);
-        });
+  <h2>対処法プレビュー</h2>
+  <div id="solutionPreview"><p class="muted">いずれかの項目にチェックを入れると、該当段階の対処法が表示されます。</p></div>
+</div>
 
-        Object.keys(byLevel).forEach(level => {
-          const lvlDiv = document.createElement("div");
-          lvlDiv.className = "level-entry";
-          lvlDiv.dataset.level = level;
-          lvlDiv.innerHTML = `<h3>${level}</h3>`;
+<script>
+/* Excelの表に完全準拠したカテゴリ順 */
+const categories = ["身体症状","行動(増)","行動(減)","心理","仕事","私事"];
 
-          // 小項目順に表示
-          ["身体症状","行動(増)","行動(減)","心理","仕事","私事"].forEach(cat => {
-            const list = byLevel[level][cat];
-            if (list) {
-              lvlDiv.innerHTML += `<h4>${cat}</h4>
-                <ul>${list.map(v => `<li>${v}</li>`).join("")}</ul>`;
-            }
-          });
+/* Excelの内容を段階ごとに反映 */
+const data = {
+  "軽度": {
+    "身体症状": ["持続するかゆみ","寝不足","疲労感"],
+    "行動(増)": ["間食をする・甘いものを買う","過集中してしまう","一人で食事をとる","自分よりも人を優先する"],
+    "行動(減)": ["運動が減る","食事が増える／減る"],
+    "心理": ["そわそわ","落ち着きがない時間帯が出てくる"],
+    "仕事": ["集中できない","連絡を返すのが面倒と感じる","残業が増える","経理処理が遅れる","別の業務を進める"],
+    "私事": ["自分を振り返る(7コラムなどのツールを使う)","リフレッシュの時間をとる","タスクを整理する時間を作る","AIに相談"]
+  },
+  "中度": {
+    "身体症状": ["腹痛","かゆみによる掻き傷","不眠","動悸","肩こり","下痢","腰痛","瞼の痙攣","ボーっとする","プロジェクト終わりの風邪"],
+    "行動(増)": ["連絡を躊躇する","理席が増える","外食が増える","不自然に元気にふるまう","溜息が増える","タバコが増える","ネットの時間が増える"],
+    "行動(減)": ["運動をしなくなる","朝食を抜く","映画や音楽を楽しめなくなる","話がまとまらない","決断ができなくなる","声が小さくなる"],
+    "心理": ["イライラ","全く落ち着いていない","焦燥感","出来について不安になる","自信が低下する","心配"],
+    "仕事": ["深夜帰宅が増える","出勤時刻が遅くなる","ミスが増える","経理処理の督促が来る"],
+    "私事": ["相談が億劫になる"]
+  },
+  "重度": {
+    "身体症状": ["複数回の突発的な下痢","重度の不眠(3時以降の就寝)","動悸","生活に支障のある腰痛","重い倦怠感","微熱","かぜ"],
+    "行動(増)": ["タクシー通勤","貧乏ゆすり","金使いが荒くなる"],
+    "行動(減)": ["連絡がほぼできない","会話が減る","返事が単調になる","歩くのが遅くなる","何も決断できない"],
+    "心理": ["感情の起伏がなくなる","強い焦燥感","あきらめ","混乱"],
+    "仕事": ["残業申告を削る","大事な業務に遅刻をする","業務軽減のお願いをする","締め切りを守れなくなる","通勤で精一杯"],
+    "私事": ["家にまっすぐ帰れなくなる","大事なものを無くす"]
+  },
+  "手遅れ": {
+    "身体症状": ["起き上がれない"],
+    "行動(増)": [],
+    "行動(減)": ["連絡できない","食事が減る","家から出れなくなる"],
+    "心理": ["罪悪感","希死念慮","自己嫌悪","自責の念"],
+    "仕事": ["通勤できなくなる"],
+    "私事": ["家族や友人への連絡もしなくなる"]
+  }
+};
+
+/* 対処１・対処２（Excel準拠） */
+const coping = {
+  "軽度": {
+    "coping1": ["残業をせず早く帰る","寝る","さんぽをする","公園でボーっとする","カフェでおいしいコーヒーを飲む","マインドフルネス","ストレッチ","セルフマッサージ","運動","登山","おいしいものを食べる","人と話す","飲みに行く"],
+    "coping2": []
+  },
+  "中度": {
+    "coping1": ["寝る（とにかくまず寝る／寝すぎない）","相談をする","マインドフルネス","温泉","海","カフェイン・アルコールを控える","マッサージ","日光浴","ゆっくり温泉や銭湯を楽しむ","自分の気持ちを優先する","おいしいものをゆっくり食べる","料理をする","スマホから手を放す","美容室に行く","上司に１ON1のお願いをする","問題解決シートを書き、上司と対応策について相談"],
+    "coping2": []
+  },
+  "重度": {
+    "coping1": ["即刻受診","すぐに数日の休みを取る"],
+    "coping2": []
+  },
+  "手遅れ": {
+    "coping1": ["とにかく休む"],
+    "coping2": ["人に連絡する","どこかに行く"]
+  }
+};
+
+/* 段階の色分け用クラス */
+const levelClass = {
+  "軽度":"level-keido",
+  "中度":"level-chudo",
+  "重度":"level-juudo",
+  "手遅れ":"level-teokure"
+};
+
+/* 1) チェックボックスを描画 */
+const container = document.getElementById("checkboxContainer");
+Object.keys(data).forEach(level => {
+  const div = document.createElement("div");
+  div.className = `level-group ${levelClass[level]||''}`;
+  div.innerHTML = `<h2>${level}</h2>`;
+  categories.forEach(cat => {
+    const det = document.createElement("details");
+    const sum = document.createElement("summary");
+    sum.textContent = cat;
+    const boxList = document.createElement("div");
+    boxList.className = "checkbox-list";
+    (data[level][cat] || []).forEach(text => {
+      const label = document.createElement("label");
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.name = "symptom";
+      cb.value = text;
+      cb.dataset.level = level;
+      cb.dataset.category = cat;
+      label.append(cb, " " + text);
+      boxList.appendChild(label);
+    });
+    det.append(sum, boxList);
+    div.appendChild(det);
+  });
+  container.appendChild(div);
+});
+
+/* 2) プレビュー更新 */
+const preview = document.getElementById("solutionPreview");
+function updatePreview(){
+  preview.innerHTML = "";
+  const checked = Array.from(document.querySelectorAll('input[name="symptom"]:checked'));
+  const levels = [...new Set(checked.map(cb=>cb.dataset.level))];
+  if(!levels.length){
+    preview.innerHTML = '<p class="muted">いずれかの項目にチェックを入れると、該当段階の対処法が表示されます。</p>';
+    return;
+  }
+  levels.forEach(level => {
+    const c = coping[level] || {coping1:[], coping2:[]};
+    const p1 = document.createElement("div");
+    p1.className = "coping"; p1.dataset.level = level;
+    p1.innerHTML = `<h3>${level} の対処１</h3>` + (c.coping1.length? c.coping1.map(t=>`<p>・${t}</p>`).join(""):'<p class="muted">（未設定）</p>');
+    preview.appendChild(p1);
+    const p2 = document.createElement("div");
+    p2.className = "coping"; p2.dataset.level = level;
+    p2.innerHTML = `<h3>${level} の対処２</h3>` + (c.coping2.length? c.coping2.map(t=>`<p>・${t}</p>`).join(""):'<p class="muted">（未設定）</p>');
+    preview.appendChild(p2);
+  });
+}
+document.addEventListener("change", e => { if(e.target && e.target.name==="symptom") updatePreview(); });
+updatePreview();
+
+/* 3) 保存（localStorage）→結果画面 */
+document.getElementById("saveBtn").addEventListener("click", () => {
+  const notes = document.getElementById("notes").value.trim();
+  const checked = Array.from(document.querySelectorAll('input[name="symptom"]:checked'));
+  const entry = {
+    timestamp: new Date().toLocaleString(),
+    symptoms: checked.map(cb => ({ level: cb.dataset.level, category: cb.dataset.category, text: cb.value })),
+    notes
+  };
+  const existing = JSON.parse(localStorage.getItem("stressEntries") || "[]");
+  existing.push(entry);
+  localStorage.setItem("stressEntries", JSON.stringify(existing));
+  location.href = "results.html";
+});
+</script>
+</body>
+</html>
